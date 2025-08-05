@@ -376,7 +376,8 @@ function App() {
                 <ul>
                   {formData.predictionResult.map((item, index) => (
                     <li key={index}>
-                      {item.category} ({parseFloat(item.probability * 100).toFixed(1)} confidence)
+                      {item.category} ({parseFloat(item.probability * 100).toFixed(1)}
+                       confidence)
                     </li>
                   ))}
                 </ul>

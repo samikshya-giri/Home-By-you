@@ -4,7 +4,9 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Gallery from './components/Gallery';
 import Scanner from './components/Scanner';
+import AdminDashboard from './components/AdminDashboard';
 import './App.css';
+
 
 function App() {
   const [showScanner, setShowScanner] = useState(false);
@@ -355,6 +357,8 @@ function App() {
   </div>
 </div>
 
+
+
 <div className="form-actions">
   <button
     type="button"
@@ -434,7 +438,9 @@ function App() {
     </div>
   </div>
 )}
-          </div>
+</div>
+
+
 
           <div className="inspiration-section">
   <div className="inspiration-header">
@@ -548,6 +554,8 @@ function App() {
             </>
           } />
           <Route path="/gallery" element={<Gallery />} />
+
+          <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
 
         <Footer />

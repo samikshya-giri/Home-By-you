@@ -1,4 +1,21 @@
 /* Add to your App.css */
+
+.main-content {
+  width: 100vw;              /* full viewport width */
+  min-height: 100vh;         /* full viewport height */
+  margin: 0;                 /* no default margins */
+  padding: 2rem;             /* inner spacing */
+  box-sizing: border-box;    /* include padding in width/height */
+  position: relative;        /* stays in normal flow, isolated */
+  z-index: 10;               /* stays above overlapping elements if needed */
+  display: flex;
+  flex-direction: column;    /* stack children vertically */
+  gap: 1rem;                 /* spacing between child elements */
+  background-color: white;   /* optional background */
+  overflow-x: hidden;        /* prevent horizontal scroll */
+}
+
+
 .design-container {
   max-width: 1400px;
   margin: 0 auto;
@@ -11,10 +28,13 @@
 .design-form-container {
   background: #f9e5f5;
   border-radius: 16px;
-  padding: 2.5rem;
+
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.05);
   height: fit-content;
+  padding: 1rem;
+  max-width: 600px;
+  margin: auto;
 }
 
 .design-form-header {
@@ -154,6 +174,7 @@
   font-size: 0.9rem;
 }
 
+
 .color-option input {
   position: absolute;
   opacity: 0;
@@ -183,6 +204,10 @@
 .color-option input:checked ~ .color-checkbox {
   box-shadow: 0 0 0 2px #bb86fc;
 }
+
+
+
+
 
 .form-actions {
   margin-top: 2rem;

@@ -57,12 +57,27 @@ const Navbar = () => {
             <span className="nav-link-text">Scan Room</span>
             <div className="nav-link-underline"></div>
           </Link>
-          <Link to="/generate" className="generate-link">
-            <span className="generate-text">Get Started</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </Link>
+
+          <Link 
+  to="#"
+  className="generate-link"
+  onClick={(e) => {
+    e.preventDefault();
+    const formSection = document.getElementById('room-form');
+    if (formSection) {
+      const yOffset = -80; // optional offset for sticky navbar
+      const y = formSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }}
+>
+  <span className="generate-text">Get Started</span>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+</Link>
+
+          
         </div>
       </div>
     </nav>

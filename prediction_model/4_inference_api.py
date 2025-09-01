@@ -6,32 +6,71 @@ import pandas as pd
 import pickle
 import os
 import logging
-from sklearn.preprocessing import LabelEncoder # Assuming LabelEncoder is used
 
 app = Flask(__name__)
-CORS(app)  # Enable Cross-Origin Resource Sharing
+CORS(app)
 
-# Logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 model = None
 preprocessing_pipeline = None
 
+# Exact 20 categories as specified
+ALL_CATEGORIES = [
+    'bathtub', 'bed', 'bench', 'bookshelf', 'bunk_bed', 'cabinet', 
+    'chair', 'couch', 'desk', 'dining_table', 'lamp', 'mirror', 
+    'office_chair', 'plant', 'rug', 'sink', 'sofa', 'table', 
+    'tv_stand', 'wardrobe'
+]
+
+# Categories by type (updated to match the exact 20 categories)
 seating_categories = ['chair', 'sofa', 'bench', 'couch', 'office_chair', 'bunk_bed']
-table_categories = ['table', 'coffee_table', 'desk', 'dining_table', 'tv_stand']
-storage_categories = ['cabinet', 'wardrobe', 'bookshelf', 'refrigerator']
+table_categories = ['table', 'dining_table', 'desk', 'tv_stand']
+storage_categories = ['cabinet', 'wardrobe', 'bookshelf']
+functional_categories = ['bathtub', 'sink', 'bed']
+decorative_categories = ['lamp', 'mirror', 'plant', 'rug']
+
+# Enhanced default core items per room using only the 20 categories
+default_core_items = {
+    'livingroom': ['sofa', 'tv_stand', 'cabinet', 'chair', 'couch'],
+    'bedroom': ['bed', 'wardrobe', 'chair', 'mirror'],
+    'bathroom': ['bathtub', 'sink', 'cabinet', 'mirror'],
+    'kitchen': ['cabinet', 'dining_table', 'sink', 'chair'],
+    'diningroom': ['dining_table', 'chair', 'cabinet'],
+    'office': ['desk', 'office_chair', 'bookshelf', 'cabinet'],
+    'studyroom': ['desk', 'bookshelf', 'chair', 'lamp'],
+    'balcony': ['plant', 'chair', 'table', 'bench'],
+    'kidsroom': ['bunk_bed', 'desk', 'chair', 'bookshelf'],
+    'guestroom': ['bed', 'wardrobe', 'chair', 'mirror'],
+    'hallway': ['table', 'mirror', 'bench', 'cabinet'],
+    'classroom': ['desk', 'chair', 'bookshelf', 'table']
+}
+
+# Room-specific item weights for exact core item prioritization
+room_item_weights = {
+    'livingroom': {'sofa': 4.0, 'tv_stand': 3.5, 'cabinet': 3.0},
+    'bedroom': {'bed': 4.0, 'wardrobe': 3.5, 'chair': 3.0},
+    'bathroom': {'bathtub': 4.0, 'sink': 3.5, 'cabinet': 3.0},
+    'kitchen': {'cabinet': 4.0, 'dining_table': 3.5, 'sink': 3.0},
+    'diningroom': {'dining_table': 4.0, 'chair': 3.5, 'cabinet': 3.0},
+    'office': {'desk': 4.0, 'office_chair': 3.5, 'bookshelf': 3.0},
+    'studyroom': {'desk': 4.0, 'bookshelf': 3.5, 'chair': 3.0},
+    'balcony': {'plant': 4.0, 'chair': 3.5, 'table': 3.0},
+    'kidsroom': {'bunk_bed': 4.0, 'desk': 3.5, 'chair': 3.0},
+    'guestroom': {'bed': 4.0, 'wardrobe': 3.5, 'chair': 3.0},
+    'hallway': {'table': 4.0, 'mirror': 3.5, 'bench': 3.0},
+    'classroom': {'desk': 4.0, 'chair': 3.5, 'bookshelf': 3.0}
+}
+
 
 def load_assets():
     global model, preprocessing_pipeline
-
     output_dir = 'output'
     model_path = os.path.join(output_dir, 'model.xgb')
     preprocessing_path = os.path.join(output_dir, 'preprocessing.pkl')
 
     if not os.path.exists(model_path) or not os.path.exists(preprocessing_path):
-        logging.error("Model or preprocessing pipeline not found. Please ensure 'model.xgb' and 'preprocessing.pkl' are in the 'output' directory.")
-        # Do not exit here in production, perhaps serve an error page or a "down for maintenance" message.
-        # For development, exiting is fine.
+        logging.error("Model or preprocessing pipeline not found.")
         exit("Required model files are missing.")
 
     try:
@@ -43,94 +82,125 @@ def load_assets():
             preprocessing_pipeline = pickle.load(f)
         logging.info(f"Preprocessing pipeline loaded from {preprocessing_path}")
 
-        # Post-load check for encoders and their classes
-        if 'color_encoder' in preprocessing_pipeline and hasattr(preprocessing_pipeline['color_encoder'], 'classes_'):
-            logging.info(f"Color encoder classes: {preprocessing_pipeline['color_encoder'].classes_.tolist()}")
-        if 'room_type_encoder' in preprocessing_pipeline and hasattr(preprocessing_pipeline['room_type_encoder'], 'classes_'):
-            logging.info(f"Room type encoder classes: {preprocessing_pipeline['room_type_encoder'].classes_.tolist()}")
-        if 'material_encoder' in preprocessing_pipeline and hasattr(preprocessing_pipeline['material_encoder'], 'classes_'):
-            logging.info(f"Material encoder classes: {preprocessing_pipeline['material_encoder'].classes_.tolist()}")
-
     except Exception as e:
         logging.error(f"Error loading model or preprocessing: {e}")
-        exit("Failed to load model or preprocessing pipeline. Check file integrity and permissions.")
+        exit("Failed to load model or preprocessing pipeline.")
+
 
 @app.route('/')
 def health_check():
     return jsonify({"message": "Prediction API is running"}), 200
 
-def apply_domain_logic(room_type, is_seating, is_table, is_storage, predictions, encoder, num_top=3):
+
+def apply_domain_logic(room_type, is_seating, is_table, is_storage, predictions):
+    """
+    Enhanced domain logic to prioritize exact core items when no type is selected
+    """
     prob_dict = {pred['category']: float(pred['probability']) for pred in predictions}
-    adjusted = dict(prob_dict)
-
-    def boost(items, factor):
-        for item in items:
-            if item in adjusted:
-                adjusted[item] *= factor
-
-    def penalize(items, factor):
-        for item in items:
-            if item in adjusted:
-                adjusted[item] *= factor
-
-    # Room-based logic
-    room_rules = {
-        'bathroom': (['sink', 'bathtub', 'toilet', 'mirror', 'shower'], ['bookshelf', 'bed', 'sofa']),
-        'livingroom': (['couch', 'sofa', 'tv_stand', 'coffee_table'], ['toilet', 'sink']),
-        'bedroom': (['bed', 'wardrobe', 'nightstand'], ['toilet', 'sink', 'tv_stand']),
-        'kitchen': (['refrigerator', 'cabinet', 'dining_table'], ['bed', 'bookshelf']),
-        'diningroom': (['dining_table', 'chair', 'cabinet'], ['bed', 'toilet']),
-        'office': (['desk', 'office_chair', 'bookshelf'], ['bed', 'bathtub']),
-        'studyroom': (['desk', 'office_chair', 'bookshelf'], ['bed', 'bathtub']),
-        'balcony': ([], ['bed', 'toilet']), # Add rules for balcony if applicable
-        'classroom': (['desk', 'chair', 'whiteboard'], ['bed', 'toilet']), # Add rules for classroom
-        'guestroom': (['bed', 'wardrobe'], ['toilet', 'sink']), # Add rules for guestroom
-        'hallway': (['console_table', 'mirror', 'coat_rack'], ['bed', 'dining_table']), # Add rules for hallway
-        'kidsroom': (['bunk_bed', 'toy_chest', 'desk'], ['toilet', 'sink']) # Add rules for kidsroom
-    }
-
-    if room_type in room_rules:
-        boost(room_rules[room_type][0], 1.5)
-        penalize(room_rules[room_type][1], 0.1)
-
-    # Boolean property logic
+    adjusted = prob_dict.copy()
+    
+    # Get room-specific core items and weights
+    room_core_items = default_core_items.get(room_type, [])
+    room_weights = room_item_weights.get(room_type, {})
+    
+    # Room-based boosting using weighted approach
+    for item in room_core_items:
+        if item in adjusted:
+            weight = room_weights.get(item, 2.0)
+            adjusted[item] *= weight
+    
+    # Type-based boosting if user specifies
     if is_seating:
-        boost(seating_categories, 2.0)
-        # Penalize non-seating items, but be careful not to zero out everything
-        for item in adjusted:
-            if item not in seating_categories:
-                adjusted[item] *= 0.5
+        for item in seating_categories:
+            if item in adjusted:
+                adjusted[item] *= 1.4
+    
     if is_table:
-        boost(table_categories, 2.0)
-        for item in adjusted:
-            if item not in table_categories:
-                adjusted[item] *= 0.5
+        for item in table_categories:
+            if item in adjusted:
+                adjusted[item] *= 1.3
+    
     if is_storage:
-        boost(storage_categories, 2.0)
-        for item in adjusted:
-            if item not in storage_categories:
-                adjusted[item] *= 0.5
-
-    # Re-normalize probabilities if you applied significant boosts/penalties
-    # total_prob = sum(adjusted.values())
-    # if total_prob > 0:
-    #     for key in adjusted:
-    #         adjusted[key] /= total_prob
-
+        for item in storage_categories:
+            if item in adjusted:
+                adjusted[item] *= 1.2
+    
+    # SPECIAL CASE: When no type is selected, STRONGLY prioritize the exact core items
+    if not any([is_seating, is_table, is_storage]):
+        # Get the exact top core items for this room from room_weights
+        top_core_items = list(room_weights.keys())[:3]  # Get top 3 weighted items
+        
+        # Very strong boost for the exact core items
+        for item in top_core_items:
+            if item in adjusted:
+                adjusted[item] *= 4.0  # Very strong boost
+        
+        # Moderate boost for other room-appropriate items
+        for item in room_core_items:
+            if item in adjusted and item not in top_core_items:
+                adjusted[item] *= 2.0
+        
+        # REDUCE decorative items when no type specified
+        for item in decorative_categories:
+            if item in adjusted:
+                adjusted[item] *= 0.3  # Reduce decorative items
+    
+    # Add variety through controlled randomness (less for core items)
+    for item in adjusted:
+        if item in room_core_items:
+            # Less randomness for core items (2% variation)
+            randomness = np.random.uniform(0.98, 1.02)
+        else:
+            # More randomness for non-core items (10% variation)
+            randomness = np.random.uniform(0.9, 1.1)
+        adjusted[item] *= randomness
+    
+    # Ensure minimum probability for all items
+    min_prob = 0.001  # Very low minimum to prevent dominance
+    for item in adjusted:
+        adjusted[item] = max(adjusted[item], min_prob)
+    
+    # Normalize probabilities
+    total = sum(adjusted.values())
+    if total > 0:
+        adjusted = {k: v / total for k, v in adjusted.items()}
+    
+    # Sort predictions
     sorted_preds = sorted(adjusted.items(), key=lambda x: x[1], reverse=True)
-    return [{"category": cat, "probability": f"{prob:.4f}"} for cat, prob in sorted_preds[:num_top]]
+    
+    # For no-type-selected case, ensure top 3 are from room_weights
+    final_predictions = []
+    if not any([is_seating, is_table, is_storage]):
+        top_core_items = list(room_weights.keys())[:3]
+        
+        # First, try to include the exact top core items
+        core_included = 0
+        for core_item in top_core_items:
+            if core_item in adjusted and core_included < 3:
+                final_predictions.append((core_item, adjusted[core_item]))
+                core_included += 1
+        
+        # If we don't have 3 core items, fill with next highest
+        if len(final_predictions) < 3:
+            for cat, prob in sorted_preds:
+                if cat not in [p[0] for p in final_predictions] and len(final_predictions) < 3:
+                    final_predictions.append((cat, prob))
+    else:
+        # Just take top 3 when type is specified
+        final_predictions = sorted_preds[:3]
+    
+    return [{"category": cat, "probability": float(f"{prob:.4f}")} for cat, prob in final_predictions]
 
 
 @app.route('/predict', methods=['POST'])
 def predict():
     if model is None or preprocessing_pipeline is None:
-        return jsonify({"error": "Model or preprocessing pipeline not loaded. Please check server logs."}), 500
+        return jsonify({"error": "Model or preprocessing pipeline not loaded."}), 500
 
     try:
         data = request.get_json()
         logging.info(f"Prediction request: {data}")
 
-        # Extract input with robust defaults using .get()
         room_type = data.get('room_type', 'livingroom').lower()
         color = data.get('color', 'white').lower()
         material = data.get('material', 'wood').lower()
@@ -145,7 +215,6 @@ def predict():
         is_table = int(data.get('is_table', 0))
         is_storage = int(data.get('is_storage', 0))
 
-        # Create a temporary DataFrame for the single prediction
         temp_df = pd.DataFrame([{
             'room_type': room_type, 'color': color, 'material': material,
             'scale_x': scale_x, 'scale_y': scale_y, 'scale_z': scale_z,
@@ -153,120 +222,63 @@ def predict():
             'is_seating': is_seating, 'is_table': is_table, 'is_storage': is_storage
         }])
 
-        # Feature Engineering (must match what was done during training)
+        enc = preprocessing_pipeline
+
+        # Encode categorical features safely
+        for col, encoder_name in [('room_type', 'room_type_encoder'), ('color', 'color_encoder'), ('material', 'material_encoder')]:
+            encoder = enc.get(encoder_name, None)
+            if encoder:
+                val = data.get(col, '').lower()
+                if val in encoder.classes_:
+                    temp_df[f'{col}_enc'] = encoder.transform([val])[0]
+                else:
+                    temp_df[f'{col}_enc'] = np.random.choice(range(len(encoder.classes_)))
+            else:
+                temp_df[f'{col}_enc'] = 0
+
+        # Feature engineering
         temp_df['volume'] = temp_df['scale_x'] * temp_df['scale_y'] * temp_df['scale_z']
         temp_df['aspect_ratio_xz'] = temp_df['scale_x'] / (temp_df['scale_z'] + 1e-6)
         temp_df['aspect_ratio_xy'] = temp_df['scale_x'] / (temp_df['scale_y'] + 1e-6)
         temp_df['distance_to_center'] = np.sqrt((temp_df['x'] - 2.5) ** 2 + (temp_df['z'] - 2.5) ** 2)
         temp_df['is_wall_near'] = ((temp_df['x'] < 1) | (temp_df['x'] > 4) | (temp_df['z'] < 1) | (temp_df['z'] > 4)).astype(int)
-        temp_df['is_corner'] = (((temp_df['x'] < 1.5) & (temp_df['z'] < 1.5)) | ((temp_df['x'] > 3.5) & (temp_df['z'] > 3.5)) |
-                                 ((temp_df['x'] < 1.5) & (temp_df['z'] > 3.5)) | ((temp_df['x'] > 3.5) & (temp_df['z'] < 1.5))).astype(int)
+        temp_df['is_corner'] = (((temp_df['x'] < 1.5) & (temp_df['z'] < 1.5)) |
+                                ((temp_df['x'] > 3.5) & (temp_df['z'] > 3.5)) |
+                                ((temp_df['x'] < 1.5) & (temp_df['z'] > 3.5)) |
+                                ((temp_df['x'] > 3.5) & (temp_df['z'] < 1.5))).astype(int)
         temp_df['wall_corner_interaction'] = temp_df['is_wall_near'] * temp_df['is_corner']
 
-        enc = preprocessing_pipeline
-
-        # --- Handle categorical encoding with unseen labels ---
-        # Get the default values (e.g., the most frequent one from training)
-        # This assumes your encoders are LabelEncoders and have a 'classes_' attribute.
-        # You might need to adjust the 'default_value' if your training set is very specific.
-        default_room_type_enc = 0 # Or a common room type's encoded value
-        if 'room_type_encoder' in enc and len(enc['room_type_encoder'].classes_) > 0:
-            default_room_type_enc = enc['room_type_encoder'].transform([enc['room_type_encoder'].classes_[0]])[0] # Use first class as default
-        
-        default_color_enc = 0 # Or a common color's encoded value
-        if 'color_encoder' in enc and len(enc['color_encoder'].classes_) > 0:
-            default_color_enc = enc['color_encoder'].transform([enc['color_encoder'].classes_[0]])[0] # Use first class as default
-
-        default_material_enc = 0 # Or a common material's encoded value
-        if 'material_encoder' in enc and len(enc['material_encoder'].classes_) > 0:
-            default_material_enc = enc['material_encoder'].transform([enc['material_encoder'].classes_[0]])[0] # Use first class as default
-
-        try:
-            temp_df['room_type_enc'] = enc['room_type_encoder'].transform([room_type])[0]
-        except ValueError:
-            logging.warning(f"Unseen room_type '{room_type}', using default encoded value: {default_room_type_enc}")
-            temp_df['room_type_enc'] = default_room_type_enc
-
-        try:
-            temp_df['color_enc'] = enc['color_encoder'].transform([color])[0]
-        except ValueError:
-            logging.warning(f"Unseen color '{color}', using default encoded value: {default_color_enc}")
-            temp_df['color_enc'] = default_color_enc
-
-        try:
-            temp_df['material_enc'] = enc['material_encoder'].transform([material])[0]
-        except ValueError:
-            logging.warning(f"Unseen material '{material}', using default encoded value: {default_material_enc}")
-            temp_df['material_enc'] = default_material_enc
-        # --- End of categorical encoding handling ---
-
         # Scale numerical features
-        numerical_features_to_scale = enc['numerical_features']
-        
-        # Ensure all expected numerical features are present in temp_df before scaling
-        # and fill any missing with 0.0 (or a more appropriate default like mean/median)
-        for col in numerical_features_to_scale:
+        for col in enc['numerical_features']:
             if col not in temp_df.columns:
-                temp_df[col] = 0.0 # This might need to be reconsidered. If a feature is truly missing, 0.0 might not be the best imputation.
+                temp_df[col] = 0.0
+        scaled_data = enc['scaler'].transform(temp_df[enc['numerical_features']])
+        scaled_df = pd.DataFrame(scaled_data, columns=enc['numerical_features'])
 
-        scaled_data = enc['scaler'].transform(temp_df[numerical_features_to_scale])
-        scaled = pd.DataFrame(scaled_data, columns=numerical_features_to_scale)
-
-        # Combine scaled numerical features with encoded categorical features
-        final_df = scaled.copy()
+        # Combine features
+        final_df = scaled_df.copy()
         final_df['room_type_enc'] = temp_df['room_type_enc']
         final_df['color_enc'] = temp_df['color_enc']
         final_df['material_enc'] = temp_df['material_enc']
-        final_df['is_seating'] = temp_df['is_seating'] # Boolean features are already numeric (0 or 1)
+        final_df['is_seating'] = temp_df['is_seating']
         final_df['is_table'] = temp_df['is_table']
         final_df['is_storage'] = temp_df['is_storage']
 
-        # If your model's feature names include one-hot encoded room types (e.g., 'is_bedroom')
-        # based on your previous code snippet, you'll need to create them here too.
-        # This part depends heavily on how your 'preprocessing.pkl' was created.
-        # If your 'feature_names' in the pipeline are already the numerical and encoded ones, this might be redundant.
-        # Assuming your `preprocessing_pipeline` handles `room_type`, `color`, `material` via simple `LabelEncoder` for direct mapping:
-        
-        # Reconstruct the full DataFrame for prediction, making sure columns are in the correct order
-        # based on enc['feature_names'].
-        # Create a dictionary to hold all feature values
-        prediction_features = {}
-        for feature_name in enc['feature_names']:
-            if feature_name in final_df.columns:
-                prediction_features[feature_name] = final_df[feature_name].iloc[0]
-            elif feature_name.startswith('is_') and feature_name.replace('is_', '') in enc['room_type_encoder'].classes_:
-                # Handle one-hot encoded room types if they are part of `feature_names`
-                # This assumes 'is_roomname' format.
-                room_name = feature_name.replace('is_', '')
-                prediction_features[feature_name] = int(room_type == room_name)
-            else:
-                # Default for any other missing feature (should ideally not happen if feature_names are exhaustive)
-                prediction_features[feature_name] = 0.0 # Or an appropriate default
-
-        # Create a DataFrame with a single row and ensure column order
-        X_predict = pd.DataFrame([prediction_features], columns=enc['feature_names'])
-        
-        # Ensure that the final DataFrame for prediction contains all 'feature_names' in the correct order
+        # Prepare XGBoost DMatrix
+        X_predict = pd.DataFrame([{feat: final_df.get(feat, 0.0).iloc[0] for feat in enc['feature_names']}])
         dmatrix = xgb.DMatrix(X_predict.values, enable_categorical=True, feature_names=enc['feature_names'])
 
-        # Predict probabilities
-        probs = model.predict(dmatrix)[0] # Get probabilities for the single prediction
-
-        # Get category names from the label encoder
+        # Predict
+        probs = model.predict(dmatrix)[0]
         all_preds = [{"category": enc['category_label_encoder'].inverse_transform([i])[0], "probability": p} for i, p in enumerate(probs)]
         all_preds.sort(key=lambda x: x['probability'], reverse=True)
 
-        top_preds = apply_domain_logic(room_type, is_seating, is_table, is_storage, all_preds, enc['category_label_encoder'])
-        
-        # Ensure probability values are floats, not strings, before returning
-        for pred in top_preds:
-            pred['probability'] = float(pred['probability'])
-
+        top_preds = apply_domain_logic(room_type, is_seating, is_table, is_storage, all_preds)
         return jsonify({"predicted_category": top_preds[0]['category'], "top_predictions": top_preds})
 
     except Exception as e:
-        logging.exception("Prediction error during processing request.")
-        return jsonify({"error": str(e), "message": "An error occurred during prediction. Check server logs for details."}), 500
+        logging.exception("Prediction error.")
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == '__main__':

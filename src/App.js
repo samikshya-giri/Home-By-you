@@ -148,6 +148,16 @@ function App() {
     template.colors.some(color => color.includes(searchTerm.toLowerCase()))
   );
 
+
+  const handleColorSelect = (color) => {
+  handleInputChange({
+    target: {
+      name: 'color',
+      value: color
+    }
+  });
+};
+
   // Main Content Component (unchanged, except for the handleSubmit call in the button)
   const MainContent = () => (
     <main className="main-content">
@@ -158,231 +168,272 @@ function App() {
               <h2>Design Your Perfect Space</h2>
               <p className="form-subtitle">Craft your dream room with our premium design tools</p>
             </div>
+<div id="room-form" className="form-grid">
+  <div className="form-section">
+    <h3 className="form-section-title">Basic Information</h3>
+    <div className="form-group premium-form-group">
+      <label className="premium-label">Room Type *</label>
+      <select
+        id="room_type"
+        name="room_type"
+        className="premium-select"
+        required
+        aria-required="true"
+        value={formData.room_type}
+        onChange={handleInputChange}
+      >
+        <option value="" disabled>Select room</option>
+        <option value="balcony">Balcony</option>
+        <option value="bathroom">Bathroom</option>
+        <option value="bedroom">Bedroom</option>
+        <option value="classroom">Classroom</option>
+        <option value="diningroom">Dining Room</option>
+        <option value="guestroom">Guest Room</option>
+        <option value="hallway">Hallway</option>
+        <option value="kidsroom">Kids Room</option>
+        <option value="kitchen">Kitchen</option>
+        <option value="livingroom">Living Room</option>
+        <option value="office">Office</option>
+        <option value="studyroom">Study Room</option>
+      </select>
+    </div>
 
-            <div className="form-grid">
-              <div className="form-section">
-                <h3 className="form-section-title">Basic Information</h3>
-                <div className="form-group premium-form-group">
-                  <label className="premium-label">Room Type *</label>
-                  <select
-                    id="room_type"
-                    name="room_type"
-                    className="premium-select"
-                    required
-                    aria-required="true"
-                    value={formData.room_type}
-                    onChange={handleInputChange}
-                  >
-                    <option value="" disabled>Select room</option>
-                    <option value="balcony">Balcony</option>
-                    <option value="bathroom">Bathroom</option>
-                    <option value="bedroom">Bedroom</option>
-                    <option value="classroom">Classroom</option>
-                    <option value="diningroom">Dining Room</option>
-                    <option value="guestroom">Guest Room</option>
-                    <option value="hallway">Hallway</option>
-                    <option value="kidsroom">Kids Room</option>
-                    <option value="kitchen">Kitchen</option>
-                    <option value="livingroom">Living Room</option>
-                    <option value="office">Office</option>
-                    <option value="studyroom">Study Room</option>
-                  </select>
-                </div>
+    <div className="form-group premium-form-group">
+      <label className="premium-label">Color *</label>
+      <div className="color-palette">
+        {[
+          {name: "beige", value: "#f5f5dc"},
+          {name: "black", value: "#000000"},
+          {name: "blue", value: "#0000ff"},
+          {name: "brown", value: "#a52a2a"},
+          {name: "gold", value: "#ffd700"},
+          {name: "gray", value: "#808080"},
+          {name: "green", value: "#008000"},
+          {name: "orange", value: "#ffa500"},
+          {name: "pink", value: "#ffc0cb"},
+          {name: "purple", value: "#800080"},
+          {name: "red", value: "#ff0000"},
+          {name: "silver", value: "#c0c0c0"},
+          {name: "turquoise", value: "#40e0d0"},
+          {name: "white", value: "#ffffff"},
+          {name: "yellow", value: "#ffff00"}
+        ].map(color => (
+          <div 
+            key={color.name}
+            className={`color-option ${formData.color === color.name ? 'selected' : ''}`}
+            onClick={() => handleColorSelect(color.name)}
+            title={color.name.charAt(0).toUpperCase() + color.name.slice(1)}
+          >
+            <div className="color-swatch" style={{backgroundColor: color.value}}></div>
+          </div>
+        ))}
+      </div>
+      <input
+        type="hidden"
+        id="color"
+        name="color"
+        value={formData.color}
+        onChange={handleInputChange}
+        required
+      />
+    </div>
+  </div>
 
-                <div className="form-group premium-form-group">
-                  <label className="premium-label">Color *</label>
-                  <select
-                    id="color"
-                    name="color"
-                    className="premium-select"
-                    required
-                    aria-required="true"
-                    value={formData.color}
-                    onChange={handleInputChange}
-                  >
-                    <option value="" disabled>Select color</option>
-                    <option value="beige">Beige</option>
-                    <option value="black">Black</option>
-                    <option value="blue">Blue</option>
-                    <option value="brown">Brown</option>
-                    <option value="gold">Gold</option>
-                    <option value="gray">Gray</option>
-                    <option value="green">Green</option>
-                    <option value="orange">Orange</option>
-                    <option value="pink">Pink</option>
-                    <option value="purple">Purple</option>
-                    <option value="red">Red</option>
-                    <option value="silver">Silver</option>
-                    <option value="turquoise">Turquoise</option>
-                    <option value="white">White</option>
-                    <option value="yellow">Yellow</option>
-                  </select>
-                </div>
-              </div>
+  <div className="form-section">
+    <h3 className="form-section-title">Material & Dimensions</h3>
+    <div className="form-group premium-form-group">
+      <label className="premium-label">Material *</label>
+      <select
+        id="material"
+        name="material"
+        className="premium-select"
+        required
+        aria-required="true"
+        value={formData.material}
+        onChange={handleInputChange}
+      >
+        <option value="" disabled>Select material</option>
+        <option value="bamboo">Bamboo</option>
+        <option value="ceramic">Ceramic</option>
+        <option value="concrete">Concrete</option>
+        <option value="fabric">Fabric</option>
+        <option value="glass">Glass</option>
+        <option value="leather">Leather</option>
+        <option value="metal">Metal</option>
+        <option value="plastic">Plastic</option>
+        <option value="stone">Stone</option>
+        <option value="wood">Wood</option>
+      </select>
+    </div>
 
-              <div className="form-section">
-                <h3 className="form-section-title">Material & Dimensions</h3>
-                <div className="form-group premium-form-group">
-                  <label className="premium-label">Material *</label>
-                  <select
-                    id="material"
-                    name="material"
-                    className="premium-select"
-                    required
-                    aria-required="true"
-                    value={formData.material}
-                    onChange={handleInputChange}
-                  >
-                    <option value="" disabled>Select material</option>
-                    <option value="bamboo">Bamboo</option>
-                    <option value="ceramic">Ceramic</option>
-                    <option value="concrete">Concrete</option>
-                    <option value="fabric">Fabric</option>
-                    <option value="glass">Glass</option>
-                    <option value="leather">Leather</option>
-                    <option value="metal">Metal</option>
-                    <option value="plastic">Plastic</option>
-                    <option value="stone">Stone</option>
-                    <option value="wood">Wood</option>
-                  </select>
-                </div>
+    <div className="form-group premium-form-group">
+      <label className="premium-label">Room Dimensions (optional)</label>
+      <div className="dimensions-grid">
+        <div className="dimension-input">
+          <label>Length (X)</label>
+          <input
+            type="number"
+            id="x"
+            name="x"
+            step="0.1"
+            placeholder="e.g., 2.5"
+            value={formData.x}
+            onChange={handleInputChange}
+            className="premium-input"
+          />
+        </div>
+        <div className="dimension-input">
+          <label>Width (Y)</label>
+          <input
+            type="number"
+            id="y"
+            name="y"
+            step="0.1"
+            placeholder="e.g., 0.0"
+            value={formData.y}
+            onChange={handleInputChange}
+            className="premium-input"
+          />
+        </div>
+        <div className="dimension-input">
+          <label>Height (Z)</label>
+          <input
+            type="number"
+            id="z"
+            name="z"
+            step="0.1"
+            placeholder="e.g., 2.5"
+            value={formData.z}
+            onChange={handleInputChange}
+            className="premium-input"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
 
-                <div className="form-group premium-form-group">
-                  <label className="premium-label">Room Dimensions (optional)</label>
-                  <div className="dimensions-grid">
-                    <div className="dimension-input">
-                      <label>Length (X)</label>
-                      <input
-                        type="number"
-                        id="x"
-                        name="x"
-                        step="0.1"
-                        placeholder="e.g., 2.5"
-                        value={formData.x}
-                        onChange={handleInputChange}
-                        className="premium-input"
-                      />
-                    </div>
-                    <div className="dimension-input">
-                      <label>Width (Y)</label>
-                      <input
-                        type="number"
-                        id="y"
-                        name="y"
-                        step="0.1"
-                        placeholder="e.g., 0.0"
-                        value={formData.y}
-                        onChange={handleInputChange}
-                        className="premium-input"
-                      />
-                    </div>
-                    <div className="dimension-input">
-                      <label>Height (Z)</label>
-                      <input
-                        type="number"
-                        id="z"
-                        name="z"
-                        step="0.1"
-                        placeholder="e.g., 2.5"
-                        value={formData.z}
-                        onChange={handleInputChange}
-                        className="premium-input"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
+  <div className="form-section">
+    <h3 className="form-section-title">Item Properties</h3>
+    <div className="form-group premium-form-group">
+      <label className="premium-label">Optional Item Properties</label>
+      <div className="checkbox-group">
+        <label className="checkbox-option">
+          <input
+            type="checkbox"
+            id="is_seating"
+            name="is_seating"
+            checked={formData.is_seating}
+            onChange={handleInputChange}
+          />
+          <span className="checkbox-custom"></span>
+          Is Seating Item?
+        </label>
+        <label className="checkbox-option">
+          <input
+            type="checkbox"
+            id="is_table"
+            name="is_table"
+            checked={formData.is_table}
+            onChange={handleInputChange}
+          />
+          <span className="checkbox-custom"></span>
+          Is Table Item?
+        </label>
+        <label className="checkbox-option">
+          <input
+            type="checkbox"
+            id="is_storage"
+            name="is_storage"
+            checked={formData.is_storage}
+            onChange={handleInputChange}
+          />
+          <span className="checkbox-custom"></span>
+          Is Storage Item?
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
 
-              <div className="form-section">
-                <h3 className="form-section-title">Item Properties</h3>
-                <div className="form-group premium-form-group">
-                  <label className="premium-label">Optional Item Properties</label>
-                  <div className="checkbox-group">
-                    <label className="checkbox-option">
-                      <input
-                        type="checkbox"
-                        id="is_seating"
-                        name="is_seating"
-                        checked={formData.is_seating}
-                        onChange={handleInputChange}
-                      />
-                      <span className="checkbox-custom"></span>
-                      Is Seating Item?
-                    </label>
-                    <label className="checkbox-option">
-                      <input
-                        type="checkbox"
-                        id="is_table"
-                        name="is_table"
-                        checked={formData.is_table}
-                        onChange={handleInputChange}
-                      />
-                      <span className="checkbox-custom"></span>
-                      Is Table Item?
-                    </label>
-                    <label className="checkbox-option">
-                      <input
-                        type="checkbox"
-                        id="is_storage"
-                        name="is_storage"
-                        checked={formData.is_storage}
-                        onChange={handleInputChange}
-                      />
-                      <span className="checkbox-custom"></span>
-                      Is Storage Item?
-                    </label>
-                  </div>
-                </div>
-              </div>
+<div className="form-actions">
+  <button
+    type="button"
+    className="btn premium-button"
+     onClick={(e) => {
+    e.preventDefault(); // prevent form submission
+    if (!formData.room_type || !formData.color || !formData.material) {
+      alert('Please fill Room Type, Color, and Material before predicting.');
+      return;
+    }
+    handleSubmit(e); // pass the event to handleSubmit
+  }}
+    disabled={formData.loading}
+  >
+    {formData.loading ? (
+      <>
+        <span className="spinner"></span>
+        Predicting...
+      </>
+    ) : (
+      'Predict Category'
+    )}
+  </button>
+  <button
+    onClick={() => setShowScanner(true)}
+    className="scan-button premium-button"
+  >
+    <span>Start 3D Room Scan</span>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" />
+    </svg>
+  </button>
+</div>
+
+{formData.loading && (
+  <div className="loading" role="alert" aria-live="polite">
+    <div className="loading-spinner"></div>
+    <p>Analyzing your room configuration...</p>
+  </div>
+)}
+
+{formData.error && (
+  <div className="error" role="alert" aria-live="assertive">
+    <div className="error-icon">
+      <i className="fas fa-exclamation-circle"></i>
+    </div>
+    <p>{formData.error}</p>
+  </div>
+)}
+
+{formData.predictionResult && (
+  <div className="prediction-results" role="alert" aria-live="polite">
+    <h3 className="results-title">Prediction Results</h3>
+    <div className="prediction-cards">
+      {formData.predictionResult.map((item, index) => (
+        <div key={index} className="prediction-card">
+          <div className="card-header">
+            <h4>{item.category}</h4>
+            <span className="confidence-badge">
+              {parseFloat(item.probability * 100).toFixed(1)}%
+            </span>
+          </div>
+          <div className="confidence-bar">
+            <div 
+              className="confidence-fill" 
+              style={{width: `${item.probability * 100}%`}}
+            ></div>
+          </div>
+          <div className="card-footer">
+            <span className="rank">#{index + 1}</span>
+            <div className="probability">
+              Confidence: {parseFloat(item.probability * 100).toFixed(1)}%
             </div>
-
-            <div className="form-actions">
-              {/* Changed type to button to prevent default form submission if not desired,
-                  and call handleSubmit explicitly */}
-              <button
-                type="button"
-                className="btn premium-button"
-                onClick={handleSubmit}
-                disabled={formData.loading}
-              >
-                {formData.loading ? 'Predicting...' : 'Predict Category'}
-              </button>
-              <button
-                onClick={() => setShowScanner(true)}
-                className="scan-button premium-button"
-              >
-                <span>Start 3D Room Scan</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" />
-                </svg>
-              </button>
-            </div>
-
-            {formData.loading && (
-              <div className="loading" role="alert" aria-live="polite">
-                <p>Predicting...</p>
-              </div>
-            )}
-
-            {formData.error && (
-              <div className="error" role="alert" aria-live="assertive">
-                {formData.error}
-              </div>
-            )}
-
-            {formData.predictionResult && (
-              <div className="result" role="alert" aria-live="polite">
-                <h4>Prediction Results:</h4>
-                <ul>
-                  {formData.predictionResult.map((item, index) => (
-                    <li key={index}>
-                      {item.category} ({parseFloat(item.probability * 100).toFixed(1)}
-                       confidence)
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
           </div>
 
           <div className="inspiration-section">

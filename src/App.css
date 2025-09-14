@@ -1,48 +1,47 @@
-/* Add to your App.css */
-
+/* Main Content */
 .main-content {
-  width: 100vw;              /* full viewport width */
-  min-height: 100vh;         /* full viewport height */
-  margin: 0;                 /* no default margins */
-  padding: 2rem;             /* inner spacing */
-  box-sizing: border-box;    /* include padding in width/height */
-  position: relative;        /* stays in normal flow, isolated */
-  z-index: 10;               /* stays above overlapping elements if needed */
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 1rem;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 10;
   display: flex;
-  flex-direction: column;    /* stack children vertically */
-  gap: 1rem;                 /* spacing between child elements */
-  background-color: white;   /* optional background */
-  overflow-x: hidden;        /* prevent horizontal scroll */
+  flex-direction: column;
+  gap: 1rem;
+  background-color: white;
+  overflow-x: hidden;
 }
 
-
+/* Design Container */
 .design-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   display: grid;
   grid-template-columns: 1fr 1.5fr;
-  gap: 3rem;
+  gap: 2rem;
 }
 
+/* Form Container */
 .design-form-container {
   background: #f9e5f5;
   border-radius: 16px;
-
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.05);
   height: fit-content;
-  padding: 1rem;
+  padding: 1.5rem;
   max-width: 600px;
   margin: auto;
 }
 
 .design-form-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .design-form-header h2 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   color: #121212;
   margin-bottom: 0.5rem;
   font-weight: 700;
@@ -50,17 +49,17 @@
 
 .form-subtitle {
   color: #666;
-  font-size: 1rem;
+  font-size: 0.9rem;
   margin: 0;
 }
 
 .form-grid {
   display: grid;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .form-section {
-  padding-bottom: 1.5rem;
+  padding-bottom: 1.2rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -71,19 +70,19 @@
 .form-section-title {
   font-size: 1.1rem;
   color: #333;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
   font-weight: 600;
 }
 
 .premium-form-group {
-  margin-bottom: 1.8rem;
+  margin-bottom: 1.5rem;
 }
 
 .premium-label {
   display: block;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
   color: #444;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
 }
 
@@ -93,7 +92,7 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   background-color: #fff;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   transition: all 0.3s ease;
   appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
@@ -174,7 +173,6 @@
   font-size: 0.9rem;
 }
 
-
 .color-option input {
   position: absolute;
   opacity: 0;
@@ -205,22 +203,18 @@
   box-shadow: 0 0 0 2px #bb86fc;
 }
 
-
-
-
-
 .form-actions {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
 }
 
 .premium-button {
   background: linear-gradient(135deg, #bb86fc, #9c64f5);
   color: white;
   border: none;
-  padding: 1rem 2rem;
+  padding: 0.9rem 1.5rem;
   border-radius: 50px;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -229,19 +223,19 @@
   box-shadow: 0 4px 15px rgba(187, 134, 252, 0.3);
   width: 100%;
   justify-content: center;
-  margin-bottom: 1rem; /* Added gap between buttons */
+  margin-bottom: 1rem;
 }
-
 
 .premium-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(187, 134, 252, 0.4);
 }
 
+/* Inspiration Section */
 .inspiration-section {
   background: #ffffff;
   border-radius: 16px;
-  padding: 2rem;
+  padding: 1.5rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -250,11 +244,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .inspiration-header h3 {
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   color: #121212;
   margin: 0;
   font-weight: 700;
@@ -291,8 +285,8 @@
 
 .templates-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.2rem;
 }
 
 .template-card {
@@ -310,7 +304,7 @@
 }
 
 .template-image {
-  height: 180px;
+  height: 160px;
   background-size: cover;
   background-position: center;
   position: relative;
@@ -318,8 +312,8 @@
 
 .template-likes {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 0.8rem;
+  right: 0.8rem;
   background: rgba(0, 0, 0, 0.6);
   color: white;
   padding: 0.3rem 0.7rem;
@@ -336,38 +330,38 @@
 }
 
 .template-info {
-  padding: 1.5rem;
+  padding: 1.2rem;
 }
 
 .template-info h4 {
-  margin: 0 0 1rem 0;
-  font-size: 1.1rem;
+  margin: 0 0 0.8rem 0;
+  font-size: 1rem;
   color: #333;
 }
 
 .template-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  gap: 0.4rem;
+  margin-bottom: 1.2rem;
 }
 
 .tag {
   background: #f5f5f5;
   color: #666;
-  padding: 0.3rem 0.7rem;
+  padding: 0.3rem 0.6rem;
   border-radius: 50px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
 }
 
 .use-template-btn {
   background: none;
   border: 1px solid #bb86fc;
   color: #bb86fc;
-  padding: 0.6rem 1.2rem;
+  padding: 0.5rem 1rem;
   border-radius: 50px;
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.3s ease;
   width: 100%;
@@ -378,20 +372,21 @@
   color: white;
 }
 
+/* Footer */
 .app-footer {
   background: #121212;
   color: white;
-  padding: 3rem 0;
-  margin-top: 4rem;
+  padding: 2rem 0;
+  margin-top: 3rem;
 }
 
 .footer-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1.5rem;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 .footer-logo {
@@ -399,8 +394,8 @@
   align-items: center;
   gap: 0.8rem;
   font-weight: 600;
-  font-size: 1.2rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  margin-bottom: 1.2rem;
 }
 
 .footer-logo svg {
@@ -410,7 +405,7 @@
 .footer-links {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.7rem;
 }
 
 .footer-links a {
@@ -425,51 +420,8 @@
 
 .footer-copyright {
   color: #666;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   margin-top: auto;
-}
-
-@media (max-width: 1200px) {
-  .design-container {
-    grid-template-columns: 1fr;
-  }
-  
-  .footer-content {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-  
-  .footer-logo {
-    justify-content: center;
-  }
-  
-  .footer-links {
-    align-items: center;
-  }
-}
-
-@media (max-width: 768px) {
-  .design-container {
-    padding: 1rem;
-  }
-  
-  .design-form-container, .inspiration-section {
-    padding: 1.5rem;
-  }
-  
-  .premium-radio-group, .color-options-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .inspiration-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  
-  .search-bar {
-    width: 100%;
-  }
 }
 
 /* Color Palette Styles */
@@ -508,30 +460,30 @@
 
 /* Prediction Results Styles */
 .prediction-results {
-  margin-top: 24px;
-  padding: 20px;
+  margin-top: 20px;
+  padding: 1rem;
   background: #f9fafb;
   border-radius: 12px;
   border-left: 4px solid #4f46e5;
 }
 
 .results-title {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   color: #1f2937;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: 600;
 }
 
 .prediction-cards {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .prediction-card {
   background: white;
   border-radius: 8px;
-  padding: 16px;
+  padding: 12px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
 }
@@ -545,12 +497,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .card-header h4 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #1f2937;
   text-transform: capitalize;
 }
@@ -560,7 +512,7 @@
   color: white;
   padding: 4px 8px;
   border-radius: 20px;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 600;
 }
 
@@ -569,7 +521,7 @@
   background: #e5e7eb;
   border-radius: 3px;
   overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .confidence-fill {
@@ -583,7 +535,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   color: #6b7280;
 }
 
@@ -622,15 +574,148 @@
 .error {
   display: flex;
   align-items: center;
-  padding: 16px;
+  padding: 12px;
   background: #fef2f2;
   border: 1px solid #fecaca;
   border-radius: 8px;
   color: #dc2626;
-  margin-top: 16px;
+  margin-top: 12px;
+  font-size: 0.9rem;
 }
 
 .error-icon {
-  margin-right: 12px;
-  font-size: 1.2rem;
+  margin-right: 10px;
+  font-size: 1.1rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 1200px) {
+  .design-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .footer-content {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  
+  .footer-logo {
+    justify-content: center;
+  }
+  
+  .footer-links {
+    align-items: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .design-container {
+    padding: 0.5rem;
+    gap: 1.5rem;
+  }
+  
+  .design-form-container, .inspiration-section {
+    padding: 1.2rem;
+    border-radius: 12px;
+  }
+  
+  .premium-radio-group, .color-options-grid {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+  
+  .inspiration-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .search-bar {
+    width: 100%;
+  }
+  
+  .templates-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .form-grid {
+    gap: 1.2rem;
+  }
+  
+  .form-section-title {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .premium-button {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 0.5rem;
+  }
+  
+  .design-form-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .form-subtitle {
+    font-size: 0.85rem;
+  }
+  
+  .premium-select {
+    padding: 0.7rem 0.9rem;
+    font-size: 0.85rem;
+  }
+  
+  .template-image {
+    height: 140px;
+  }
+  
+  .template-info {
+    padding: 1rem;
+  }
+  
+  .prediction-results {
+    padding: 0.8rem;
+  }
+  
+  .card-header h4 {
+    font-size: 0.95rem;
+  }
+  
+  .footer-content {
+    padding: 0 1rem;
+    gap: 1.2rem;
+  }
+  
+  .footer-logo {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+}
+
+/* Special adjustments for very small screens */
+@media (max-width: 360px) {
+  .design-form-container, .inspiration-section {
+    padding: 1rem;
+  }
+  
+  .premium-button {
+    font-size: 0.85rem;
+  }
+  
+  .tag {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+  }
+  
+  .use-template-btn {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
 }

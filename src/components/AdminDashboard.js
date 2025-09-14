@@ -265,7 +265,7 @@ const AdminDashboard = () => {
         <>
             <header className="dashboard-header">
                 <h1>AI Model Analytics Dashboard</h1>
-                <p>Performance metrics and visualizations for your furniture classification model.</p>
+                <p>Performance metrics and visualizations for the furniture classification model.</p>
             </header>
             <div className="dashboard-tabs">
                 <button
